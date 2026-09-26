@@ -97,7 +97,7 @@ sudo dnf install ./wortool-*-Linux.rpm
   </tr>
 </table>
 
-Press <kbd>Ctrl</kbd>+<kbd>K</kbd> (<kbd>Cmd</kbd>+<kbd>K</kbd> on macOS) anywhere to jump to a page or one of your plans.
+Press <kbd>Ctrl</kbd>+<kbd>F</kbd> (<kbd>Cmd</kbd>+<kbd>F</kbd> on macOS), or <kbd>/</kbd> anywhere outside a text field, to jump to a page or one of your plans.
 
 ## Updates
 
