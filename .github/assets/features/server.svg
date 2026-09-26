@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" role="img" aria-label="Server editor">
+    <rect x="0.75" y="0.75" width="46.5" height="46.5" rx="2.5" fill="#12141a" stroke="#b8923e" stroke-opacity="0.45" stroke-width="1.2" />
+    <rect x="12" y="12" width="24" height="10" rx="1.2" fill="none" stroke="#c6a254" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+    <rect x="12" y="26" width="24" height="10" rx="1.2" fill="none" stroke="#c6a254" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+    <path d="M16.5 17 H24 M16.5 31 H24" fill="none" stroke="#e8e2d2" stroke-opacity="0.55" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
+    <circle cx="31" cy="17" r="1.5" fill="#c6a254">
+        <animate attributeName="fill-opacity" values="1;0.25;1" dur="1.4s" repeatCount="indefinite" />
+    </circle>
+    <circle cx="31" cy="31" r="1.5" fill="#c6a254">
+        <animate attributeName="fill-opacity" values="0.25;1;0.25" dur="1.4s" repeatCount="indefinite" />
+    </circle>
+</svg>

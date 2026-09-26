@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" role="img" aria-label="Quiet updates">
+    <rect x="0.75" y="0.75" width="46.5" height="46.5" rx="2.5" fill="#12141a" stroke="#b8923e" stroke-opacity="0.45" stroke-width="1.2" />
+    <g>
+        <animateTransform attributeName="transform" type="rotate" values="0 24 24;360 24 24" dur="6s" repeatCount="indefinite" />
+        <path d="M33 21 A9.5 9.5 0 0 0 16.2 17.4" fill="none" stroke="#c6a254" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+        <path d="M15.5 13.2 L16.2 17.6 L20.6 16.9" fill="none" stroke="#c6a254" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+        <path d="M15 27 A9.5 9.5 0 0 0 31.8 30.6" fill="none" stroke="#c6a254" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+        <path d="M32.5 34.8 L31.8 30.4 L27.4 31.1" fill="none" stroke="#c6a254" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+    </g>
+    <path d="M24 20.5 V27.5 M21 24.8 L24 27.8 L27 24.8" fill="none" stroke="#e8e2d2" stroke-opacity="0.55" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
+</svg>

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="48" height="48" role="img" aria-label="Notifications and tray">
+    <rect x="0.75" y="0.75" width="46.5" height="46.5" rx="2.5" fill="#12141a" stroke="#b8923e" stroke-opacity="0.45" stroke-width="1.2" />
+    <g>
+        <animateTransform attributeName="transform" type="rotate" values="0 24 12;9 24 12;-7 24 12;4 24 12;0 24 12;0 24 12" keyTimes="0;0.08;0.16;0.24;0.32;1" dur="4s" repeatCount="indefinite" />
+        <path d="M16.5 31 V22.5 A7.5 7.5 0 0 1 31.5 22.5 V31 L33.5 33.5 H14.5 Z" fill="none" stroke="#c6a254" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+        <path d="M21.5 36 A2.6 2.6 0 0 0 26.5 36" fill="none" stroke="#c6a254" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+    </g>
+    <path d="M24 11.5 V14.8" fill="none" stroke="#c6a254" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
