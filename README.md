@@ -28,6 +28,7 @@
   <tr>
     <td align="center"><a href=".github/assets/screens/units.webp"><img src=".github/assets/screens/units.webp" width="190" alt="A combat unit's loadout and the maps it fights on"/><br/><sub>Units</sub></a></td>
     <td align="center"><a href=".github/assets/screens/weapons.webp"><img src=".github/assets/screens/weapons.webp" width="190" alt="A weapon's range and who carries it"/><br/><sub>Weapons</sub></a></td>
+    <td align="center"><a href=".github/assets/screens/plans.webp"><img src=".github/assets/screens/plans.webp" width="190" alt="WoRSketch plans, with the latest to continue"/><br/><sub>Your plans</sub></a></td>
     <td align="center"><a href=".github/assets/screens/board.webp"><img src=".github/assets/screens/board.webp" width="190" alt="A WoRSketch plan on Burnside Bridge"/><br/><sub>WoRSketch</sub></a></td>
   </tr>
 </table>
