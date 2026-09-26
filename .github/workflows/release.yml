@@ -344,11 +344,12 @@ jobs:
           done
 
       # Apple's ticket can lag behind the accepted status, and stapler then
-      # exits 66 until the CDN has it.
+      # exits 66 until the CDN has it. The artifact keeps the files' common
+      # root, so the installers sit under dist/ beside the submission record.
       - name: Staple the ticket
         if: steps.download.outcome == 'success'
         run: |
-          dmg=$(ls wortool-*-macOS-Installer.dmg | head -1)
+          dmg=$(ls dist/wortool-*-macOS-Installer.dmg | head -1)
           for attempt in $(seq 1 10); do
             if xcrun stapler staple -v "$dmg"; then
               echo "Stapled on attempt $attempt"
@@ -365,7 +366,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh release upload "${{ needs.version.outputs.tag }}" \
-            wortool-*-macOS-Installer.dmg \
+            dist/wortool-*-macOS-Installer.dmg \
             --repo "${{ github.repository }}" \
             --clobber
 
