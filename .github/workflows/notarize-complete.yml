@@ -119,7 +119,7 @@ jobs:
         with:
           repository: ${{ env.SOURCE_REPO }}
           ref: ${{ inputs.ref }}
-          token: ${{ secrets.SOURCE_REPO_TOKEN }}
+          ssh-key: ${{ secrets.SOURCE_REPO_SSH_KEY }}
           path: source
           fetch-depth: 0
           fetch-tags: true

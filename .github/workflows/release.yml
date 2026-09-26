@@ -1,6 +1,6 @@
 # Builds, signs and publishes the desktop installers for one release of
 # wortool-drogon. Lives in the public molexxxx/wortool-desktop repository, whose
-# runners are free, and checks the private monorepo out with a read-only token.
+# runners are free, and checks the private monorepo out with a read-only deploy key.
 #
 # Run it by hand from Actions with the private repository's tag to release
 # (desktop-vX.Y.Z); apps/desktop/scripts/release.sh in the monorepo does that
@@ -39,7 +39,7 @@ jobs:
         with:
           repository: ${{ env.SOURCE_REPO }}
           ref: ${{ inputs.ref }}
-          token: ${{ secrets.SOURCE_REPO_TOKEN }}
+          ssh-key: ${{ secrets.SOURCE_REPO_SSH_KEY }}
           path: source
           sparse-checkout: apps/desktop/package.json
           sparse-checkout-cone-mode: false
@@ -61,7 +61,7 @@ jobs:
         with:
           repository: ${{ env.SOURCE_REPO }}
           ref: ${{ inputs.ref }}
-          token: ${{ secrets.SOURCE_REPO_TOKEN }}
+          ssh-key: ${{ secrets.SOURCE_REPO_SSH_KEY }}
           path: source
           sparse-checkout: |
             /*
@@ -125,7 +125,7 @@ jobs:
         with:
           repository: ${{ env.SOURCE_REPO }}
           ref: ${{ inputs.ref }}
-          token: ${{ secrets.SOURCE_REPO_TOKEN }}
+          ssh-key: ${{ secrets.SOURCE_REPO_SSH_KEY }}
           path: source
           sparse-checkout: |
             /*
@@ -360,7 +360,7 @@ jobs:
         with:
           repository: ${{ env.SOURCE_REPO }}
           ref: ${{ inputs.ref }}
-          token: ${{ secrets.SOURCE_REPO_TOKEN }}
+          ssh-key: ${{ secrets.SOURCE_REPO_SSH_KEY }}
           path: source
           fetch-depth: 0
           fetch-tags: true
