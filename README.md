@@ -20,7 +20,7 @@ Run the installer. Windows SmartScreen may say it does not recognize the app, be
 
 ### macOS
 
-Open the dmg and drag WoRTool into Applications.
+Open the dmg and drag WoRTool into Applications. The app is signed and notarized by Apple, so it opens without a warning.
 
 ### Linux
 
