@@ -140,11 +140,19 @@ jobs:
           prev=$(git tag --list 'desktop-v*' --sort=-version:refname | grep -v "^${REF}$" | head -1 || true)
           if [ -n "$prev" ]; then
             echo "range=${prev}..${REF}" >> "$GITHUB_OUTPUT"
-          else
-            echo "range=${REF}" >> "$GITHUB_OUTPUT"
           fi
 
+      # The first desktop release has no earlier tag to count from, and the
+      # whole history is not news to anyone, so it gets a written note.
+      - name: Write the first release's notes
+        if: steps.range.outputs.range == ''
+        run: |
+          cat > RELEASE_NOTES.md <<'EOF'
+          The first release of WoRTool for desktop: the War of Rights catalog, readable offline once it has been opened; the WoRSketch planner, with a plan that can sit over the game; the server editor; and your communities and operations. The macOS build is signed and notarized by Apple.
+          EOF
+
       - name: Write the release notes
+        if: steps.range.outputs.range != ''
         uses: orhun/git-cliff-action@f50e11560dce63f7c33227798f90b924471a88b5 # v4.8.0
         with:
           config: public/.github/cliff.toml
