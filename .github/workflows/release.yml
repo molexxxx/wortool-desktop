@@ -156,6 +156,30 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: sudo apt-get update && sudo apt-get install -y rpm
 
+      # electron-builder 26 imports CSC_LINK into a keychain of its own and
+      # then unlocks it with the certificate's password instead of the
+      # keychain's, which current macOS runners refuse. The certificate goes
+      # into a keychain made here instead, and electron-builder finds the
+      # Developer ID identity in the search list.
+      - name: Import the signing certificate
+        if: matrix.os == 'macos-latest' && env.MAC_CSC_LINK != ''
+        env:
+          MAC_CSC_KEY_PASSWORD: ${{ secrets.MAC_CSC_KEY_PASSWORD }}
+        run: |
+          keychain="$RUNNER_TEMP/signing.keychain-db"
+          keychain_password="$(openssl rand -base64 24)"
+          echo "::add-mask::$keychain_password"
+          printf '%s' "$MAC_CSC_LINK" | base64 --decode > "$RUNNER_TEMP/signing.p12"
+          security create-keychain -p "$keychain_password" "$keychain"
+          security set-keychain-settings -lut 21600 "$keychain"
+          security unlock-keychain -p "$keychain_password" "$keychain"
+          security import "$RUNNER_TEMP/signing.p12" -k "$keychain" -P "$MAC_CSC_KEY_PASSWORD" \
+            -T /usr/bin/codesign -T /usr/bin/productbuild -T /usr/bin/security
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$keychain_password" "$keychain" > /dev/null
+          security list-keychains -d user -s "$keychain" $(security list-keychains -d user | tr -d '"')
+          rm -f "$RUNNER_TEMP/signing.p12"
+          security find-identity -v -p codesigning "$keychain"
+
       # macOS, signed: a signed but not yet notarized dmg and zip. The next
       # step submits the dmg to Apple without waiting; the notarize job polls
       # for approval and staples the ticket.
@@ -164,8 +188,6 @@ jobs:
         working-directory: source/apps/desktop
         run: npm run ${{ matrix.script }}
         env:
-          CSC_LINK: ${{ secrets.MAC_CSC_LINK }}
-          CSC_KEY_PASSWORD: ${{ secrets.MAC_CSC_KEY_PASSWORD }}
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
