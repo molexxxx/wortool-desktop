@@ -114,6 +114,9 @@ jobs:
             --repo "${{ github.repository }}" \
             --clobber
 
+      # A full clone, not a sparse one: a sparse checkout is a partial clone
+      # without file contents, and git-cliff cannot fetch what it needs to see
+      # which paths each commit touched.
       - name: Check out the source history
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -123,8 +126,6 @@ jobs:
           path: source
           fetch-depth: 0
           fetch-tags: true
-          sparse-checkout: apps/desktop/package.json
-          sparse-checkout-cone-mode: false
 
       - name: Check out this repository's changelog config
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -156,7 +157,7 @@ jobs:
         uses: orhun/git-cliff-action@f50e11560dce63f7c33227798f90b924471a88b5 # v4.8.0
         with:
           config: public/.github/cliff.toml
-          args: --repository source --include-path "apps/desktop/**" --include-path "packages/**" --strip header ${{ steps.range.outputs.range }}
+          args: --repository source --include-path "apps/desktop/**" --include-path "packages/**" --exclude-path "apps/desktop/release/**" --strip header ${{ steps.range.outputs.range }}
         env:
           OUTPUT: RELEASE_NOTES.md
 
