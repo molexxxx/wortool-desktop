@@ -1,0 +1,405 @@
+# Builds, signs and publishes the desktop installers for one release of
+# wortool-drogon. Lives in the public molexxxx/wortool-desktop repository, whose
+# runners are free, and checks the private monorepo out with a read-only token.
+#
+# Run it by hand from Actions with the private repository's tag to release
+# (desktop-vX.Y.Z); apps/desktop/scripts/release.sh in the monorepo does that
+# after tagging. Nothing here runs on push or on pull requests, so a fork never
+# sees a secret.
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "wortool-drogon tag to build, such as desktop-v0.1.0"
+        required: true
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: release-${{ inputs.ref }}
+  cancel-in-progress: false
+
+env:
+  SOURCE_REPO: molexxxx/wortool-drogon
+
+jobs:
+  version:
+    name: Read version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.read.outputs.version }}
+      tag: v${{ steps.read.outputs.version }}
+    steps:
+      - name: Check out the desktop app
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ${{ env.SOURCE_REPO }}
+          ref: ${{ inputs.ref }}
+          token: ${{ secrets.SOURCE_REPO_TOKEN }}
+          path: source
+          sparse-checkout: apps/desktop/package.json
+          sparse-checkout-cone-mode: false
+
+      - name: Read the app version
+        id: read
+        run: |
+          version=$(node -p "require('./source/apps/desktop/package.json').version")
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "Releasing WoRTool $version from ${{ inputs.ref }}"
+
+  test:
+    name: Typecheck, lint and test
+    needs: version
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the desktop workspace
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ${{ env.SOURCE_REPO }}
+          ref: ${{ inputs.ref }}
+          token: ${{ secrets.SOURCE_REPO_TOKEN }}
+          path: source
+          sparse-checkout: |
+            /*
+            !/apps/
+            !/database/
+            !/docker/
+            !/libs/
+            !/migration/
+            !/maintenance/
+            !/tools/
+            /apps/desktop/
+            /apps/web/package.json
+            /packages/
+            /contracts/
+          sparse-checkout-cone-mode: false
+
+      # The same Node major as docker/desktop.Dockerfile, where the monorepo's
+      # gate runs these tests; an older one lacks globals they rely on.
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 26
+          cache: npm
+          cache-dependency-path: source/package-lock.json
+
+      - name: Install the desktop workspace
+        working-directory: source
+        run: npm ci --workspace wortool-desktop --no-audit --no-fund
+
+      - name: Typecheck
+        working-directory: source/apps/desktop
+        run: npm run typecheck
+
+      - name: Lint
+        working-directory: source/apps/desktop
+        run: npm run lint
+
+      - name: Unit tests
+        working-directory: source/apps/desktop
+        run: npm test
+
+  package:
+    name: Package (${{ matrix.os }})
+    needs: [version, test]
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            script: package:win
+          - os: macos-latest
+            script: package:mac
+          - os: ubuntu-latest
+            script: package:linux
+    runs-on: ${{ matrix.os }}
+    env:
+      MAC_CSC_LINK: ${{ secrets.MAC_CSC_LINK }}
+      VERSION: ${{ needs.version.outputs.version }}
+    steps:
+      - name: Check out the desktop workspace
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ${{ env.SOURCE_REPO }}
+          ref: ${{ inputs.ref }}
+          token: ${{ secrets.SOURCE_REPO_TOKEN }}
+          path: source
+          sparse-checkout: |
+            /*
+            !/apps/
+            !/database/
+            !/docker/
+            !/libs/
+            !/migration/
+            !/maintenance/
+            !/tools/
+            /apps/desktop/
+            /apps/web/package.json
+            /packages/
+            /contracts/
+          sparse-checkout-cone-mode: false
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 26
+          cache: npm
+          cache-dependency-path: source/package-lock.json
+
+      - name: Install the desktop workspace
+        working-directory: source
+        run: npm ci --workspace wortool-desktop --no-audit --no-fund
+
+      - name: Install rpm tooling
+        if: matrix.os == 'ubuntu-latest'
+        run: sudo apt-get update && sudo apt-get install -y rpm
+
+      # macOS, signed: a signed but not yet notarized dmg and zip. The next
+      # step submits the dmg to Apple without waiting; the notarize job polls
+      # for approval and staples the ticket.
+      - name: Package (macOS, signed)
+        if: matrix.os == 'macos-latest' && env.MAC_CSC_LINK != ''
+        working-directory: source/apps/desktop
+        run: npm run ${{ matrix.script }}
+        env:
+          CSC_LINK: ${{ secrets.MAC_CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.MAC_CSC_KEY_PASSWORD }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+
+      # notarytool takes a dmg, zip or pkg, never a bare app. Notarizing the
+      # dmg registers the inner app's signature with Apple, so the updater
+      # zip passes Gatekeeper's online check even though only the dmg is
+      # stapled.
+      - name: Submit the macOS installer for notarization
+        if: matrix.os == 'macos-latest' && env.MAC_CSC_LINK != ''
+        working-directory: source/apps/desktop
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          dmg=$(ls dist/wortool-*-macOS-Installer.dmg | head -1)
+          echo "Submitting $dmg for notarization without waiting"
+          xcrun notarytool submit "$dmg" \
+            --apple-id "$APPLE_ID" \
+            --password "$APPLE_APP_SPECIFIC_PASSWORD" \
+            --team-id "$APPLE_TEAM_ID" \
+            --no-wait --output-format json | tee notarization-submission.json
+          echo "Submission id: $(jq -r '.id' notarization-submission.json)"
+
+      - name: Package (macOS, unsigned)
+        if: matrix.os == 'macos-latest' && env.MAC_CSC_LINK == ''
+        working-directory: source/apps/desktop
+        run: npm run ${{ matrix.script }}
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: "false"
+
+      - name: Package (Windows and Linux)
+        if: matrix.os != 'macos-latest'
+        working-directory: source/apps/desktop
+        run: npm run ${{ matrix.script }}
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: "false"
+
+      - name: Upload Windows and Linux installers to the draft release
+        if: matrix.os != 'macos-latest'
+        uses: softprops/action-gh-release@3d0d9888cb7fd7b750713d6e236d1fcb99157228 # v3.0.2
+        with:
+          tag_name: ${{ needs.version.outputs.tag }}
+          name: WoRTool ${{ env.VERSION }}
+          draft: true
+          files: |
+            source/apps/desktop/dist/wortool-*-Windows-Setup.exe
+            source/apps/desktop/dist/wortool-*-Linux.AppImage
+            source/apps/desktop/dist/wortool-*-Linux.deb
+            source/apps/desktop/dist/wortool-*-Linux.rpm
+            source/apps/desktop/dist/latest*.yml
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # macOS, signed: kept for the notarize job, and also uploaded unstapled
+      # so the manual completion workflow can find it by tag if Apple takes
+      # longer than that job waits.
+      - name: Keep the macOS artifacts for the notarize job
+        if: matrix.os == 'macos-latest' && env.MAC_CSC_LINK != ''
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: macos-notarize
+          path: |
+            source/apps/desktop/dist/wortool-*-macOS-Installer.dmg
+            source/apps/desktop/dist/wortool-*-macOS-Updater.zip
+            source/apps/desktop/dist/latest-mac.yml
+            source/apps/desktop/notarization-submission.json
+          retention-days: 90
+
+      - name: Upload the macOS build to the draft release
+        if: matrix.os == 'macos-latest'
+        uses: softprops/action-gh-release@3d0d9888cb7fd7b750713d6e236d1fcb99157228 # v3.0.2
+        with:
+          tag_name: ${{ needs.version.outputs.tag }}
+          name: WoRTool ${{ env.VERSION }}
+          draft: true
+          files: |
+            source/apps/desktop/dist/wortool-*-macOS-Installer.dmg
+            source/apps/desktop/dist/wortool-*-macOS-Updater.zip
+            source/apps/desktop/dist/latest-mac.yml
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # Waits for Apple, staples the ticket to the dmg, and replaces the unstapled
+  # asset. Six hours is the ceiling; a first submission on a new developer
+  # account can take longer, in which case notarize-complete.yml finishes by
+  # hand with the submission id from the package job's log.
+  notarize-macos:
+    name: Notarize and staple macOS
+    needs: [version, package]
+    runs-on: macos-latest
+    timeout-minutes: 360
+    steps:
+      - name: Download the macOS artifacts
+        id: download
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: macos-notarize
+        continue-on-error: true
+
+      - name: Skip an unsigned build
+        if: steps.download.outcome == 'failure'
+        run: echo "No macos-notarize artifact, so this build was not signed; nothing to notarize."
+
+      - name: Wait for Apple
+        if: steps.download.outcome == 'success'
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          submission_id=$(jq -r '.id' notarization-submission.json)
+          echo "Waiting on Apple notarization submission $submission_id"
+
+          for attempt in $(seq 1 5); do
+            if xcrun notarytool wait "$submission_id" \
+                --apple-id "$APPLE_ID" \
+                --password "$APPLE_APP_SPECIFIC_PASSWORD" \
+                --team-id "$APPLE_TEAM_ID"; then
+              echo "Accepted on attempt $attempt"
+              exit 0
+            fi
+
+            status=$(xcrun notarytool info "$submission_id" \
+              --apple-id "$APPLE_ID" \
+              --password "$APPLE_APP_SPECIFIC_PASSWORD" \
+              --team-id "$APPLE_TEAM_ID" \
+              --output-format json 2>/dev/null \
+              | jq -r '.status // "unknown"' 2>/dev/null || echo "unknown")
+            echo "Status after attempt $attempt of 5: $status"
+
+            case "$status" in
+              Accepted)
+                exit 0
+                ;;
+              Invalid|Rejected)
+                xcrun notarytool log "$submission_id" \
+                  --apple-id "$APPLE_ID" \
+                  --password "$APPLE_APP_SPECIFIC_PASSWORD" \
+                  --team-id "$APPLE_TEAM_ID" || true
+                exit 1
+                ;;
+              *)
+                if [ "$attempt" -lt 5 ]; then
+                  echo "Retrying in 60 seconds"
+                  sleep 60
+                else
+                  echo "Apple has not answered; finish with the Complete macOS Notarization workflow."
+                  exit 1
+                fi
+                ;;
+            esac
+          done
+
+      # Apple's ticket can lag behind the accepted status, and stapler then
+      # exits 66 until the CDN has it.
+      - name: Staple the ticket
+        if: steps.download.outcome == 'success'
+        run: |
+          dmg=$(ls wortool-*-macOS-Installer.dmg | head -1)
+          for attempt in $(seq 1 10); do
+            if xcrun stapler staple -v "$dmg"; then
+              echo "Stapled on attempt $attempt"
+              exit 0
+            fi
+            echo "Staple attempt $attempt of 10 failed; retrying in 30 seconds"
+            sleep 30
+          done
+          exit 1
+
+      - name: Replace the unstapled installer
+        if: steps.download.outcome == 'success'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload "${{ needs.version.outputs.tag }}" \
+            wortool-*-macOS-Installer.dmg \
+            --repo "${{ github.repository }}" \
+            --clobber
+
+  # Release notes are the subjects of the private commits that touched the
+  # desktop since the previous desktop tag, so the public repository never
+  # carries the monorepo's history and the notes say only what the app did.
+  publish:
+    name: Publish the release
+    needs: [version, package, notarize-macos]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the source history
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ${{ env.SOURCE_REPO }}
+          ref: ${{ inputs.ref }}
+          token: ${{ secrets.SOURCE_REPO_TOKEN }}
+          path: source
+          fetch-depth: 0
+          fetch-tags: true
+          sparse-checkout: apps/desktop/package.json
+          sparse-checkout-cone-mode: false
+
+      - name: Check out this repository's changelog config
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: public
+
+      - name: Resolve the changelog range
+        id: range
+        working-directory: source
+        env:
+          REF: ${{ inputs.ref }}
+        run: |
+          prev=$(git tag --list 'desktop-v*' --sort=-version:refname | grep -v "^${REF}$" | head -1 || true)
+          if [ -n "$prev" ]; then
+            echo "Notes cover ${prev}..${REF}"
+            echo "range=${prev}..${REF}" >> "$GITHUB_OUTPUT"
+          else
+            echo "No previous desktop tag; notes cover everything up to ${REF}"
+            echo "range=${REF}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Write the release notes
+        uses: orhun/git-cliff-action@f50e11560dce63f7c33227798f90b924471a88b5 # v4.8.0
+        with:
+          config: public/.github/cliff.toml
+          args: --repository source --include-path "apps/desktop/**" --include-path "packages/**" --strip header ${{ steps.range.outputs.range }}
+        env:
+          OUTPUT: RELEASE_NOTES.md
+
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release edit "${{ needs.version.outputs.tag }}" \
+            --repo "${{ github.repository }}" \
+            --notes-file RELEASE_NOTES.md \
+            --draft=false --latest

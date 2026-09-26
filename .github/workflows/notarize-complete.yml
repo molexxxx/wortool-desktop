@@ -1,0 +1,162 @@
+# Finishes a release whose notarize job ran out of time waiting for Apple,
+# which happens on a brand-new developer account. Run it by hand with the
+# public release tag (vX.Y.Z), the private tag it was built from
+# (desktop-vX.Y.Z), and the submission id printed by the package job:
+# "Submission id: <UUID>". It waits for Apple, staples the ticket to the dmg
+# already in the draft release, replaces that asset, writes the notes and
+# publishes.
+name: Complete macOS Notarization
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Public release tag, such as v0.1.0"
+        required: true
+      ref:
+        description: "wortool-drogon tag it was built from, such as desktop-v0.1.0"
+        required: true
+      submission_id:
+        description: "Apple notarization submission UUID from the package job's log"
+        required: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: notarize-${{ inputs.tag }}
+  cancel-in-progress: true
+
+env:
+  SOURCE_REPO: molexxxx/wortool-drogon
+
+jobs:
+  notarize-staple-publish:
+    name: Notarize, staple and publish
+    runs-on: macos-latest
+    timeout-minutes: 360
+    steps:
+      - name: Wait for Apple
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          SUBMISSION_ID: ${{ inputs.submission_id }}
+        run: |
+          echo "Waiting on submission $SUBMISSION_ID"
+          for attempt in $(seq 1 5); do
+            if xcrun notarytool wait "$SUBMISSION_ID" \
+                --apple-id "$APPLE_ID" \
+                --password "$APPLE_APP_SPECIFIC_PASSWORD" \
+                --team-id "$APPLE_TEAM_ID"; then
+              echo "Accepted on attempt $attempt"
+              exit 0
+            fi
+
+            status=$(xcrun notarytool info "$SUBMISSION_ID" \
+              --apple-id "$APPLE_ID" \
+              --password "$APPLE_APP_SPECIFIC_PASSWORD" \
+              --team-id "$APPLE_TEAM_ID" \
+              --output-format json 2>/dev/null \
+              | jq -r '.status // "unknown"' 2>/dev/null || echo "unknown")
+            echo "Status after attempt $attempt of 5: $status"
+
+            case "$status" in
+              Accepted)
+                exit 0
+                ;;
+              Invalid|Rejected)
+                xcrun notarytool log "$SUBMISSION_ID" \
+                  --apple-id "$APPLE_ID" \
+                  --password "$APPLE_APP_SPECIFIC_PASSWORD" \
+                  --team-id "$APPLE_TEAM_ID" || true
+                exit 1
+                ;;
+              *)
+                if [ "$attempt" -lt 5 ]; then
+                  sleep 60
+                else
+                  exit 1
+                fi
+                ;;
+            esac
+          done
+
+      - name: Download the installer from the draft release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mkdir -p dist
+          gh release download "${{ inputs.tag }}" \
+            --pattern "*-macOS-Installer.dmg" \
+            --dir dist/ \
+            --repo "${{ github.repository }}"
+
+      - name: Staple the ticket
+        run: |
+          dmg=$(ls dist/wortool-*-macOS-Installer.dmg | head -1)
+          for attempt in $(seq 1 10); do
+            if xcrun stapler staple -v "$dmg"; then
+              echo "Stapled on attempt $attempt"
+              exit 0
+            fi
+            echo "Staple attempt $attempt of 10 failed; retrying in 30 seconds"
+            sleep 30
+          done
+          exit 1
+
+      - name: Replace the unstapled installer
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload "${{ inputs.tag }}" \
+            dist/wortool-*-macOS-Installer.dmg \
+            --repo "${{ github.repository }}" \
+            --clobber
+
+      - name: Check out the source history
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ${{ env.SOURCE_REPO }}
+          ref: ${{ inputs.ref }}
+          token: ${{ secrets.SOURCE_REPO_TOKEN }}
+          path: source
+          fetch-depth: 0
+          fetch-tags: true
+          sparse-checkout: apps/desktop/package.json
+          sparse-checkout-cone-mode: false
+
+      - name: Check out this repository's changelog config
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: public
+
+      - name: Resolve the changelog range
+        id: range
+        working-directory: source
+        env:
+          REF: ${{ inputs.ref }}
+        run: |
+          prev=$(git tag --list 'desktop-v*' --sort=-version:refname | grep -v "^${REF}$" | head -1 || true)
+          if [ -n "$prev" ]; then
+            echo "range=${prev}..${REF}" >> "$GITHUB_OUTPUT"
+          else
+            echo "range=${REF}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Write the release notes
+        uses: orhun/git-cliff-action@f50e11560dce63f7c33227798f90b924471a88b5 # v4.8.0
+        with:
+          config: public/.github/cliff.toml
+          args: --repository source --include-path "apps/desktop/**" --include-path "packages/**" --strip header ${{ steps.range.outputs.range }}
+        env:
+          OUTPUT: RELEASE_NOTES.md
+
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release edit "${{ inputs.tag }}" \
+            --repo "${{ github.repository }}" \
+            --notes-file RELEASE_NOTES.md \
+            --draft=false --latest
