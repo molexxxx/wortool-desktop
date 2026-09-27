@@ -1,0 +1,37 @@
+# Tells the profile repository to redraw its badges and cards once a release
+# run here has finished, so the version, the download count and the build
+# status on molexxxx/molexxxx and in this README show that run's own result
+# instead of whatever the profile's two-hourly schedule last saw.
+#
+# It runs on workflow_run rather than as a last job of the release: a job
+# inside the run would ask while the run is still in progress, and the build
+# badge would read "running" until the next scheduled refresh. The release
+# workflows only ever run by hand, so this never runs for a fork's changes.
+name: Refresh profile badges
+
+on:
+  workflow_run:
+    workflows: [Release, Complete macOS Notarization]
+    types: [completed]
+
+permissions: {}
+
+jobs:
+  dispatch:
+    name: Ask the profile to redraw its badges
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dispatch refresh-badges
+        env:
+          GH_TOKEN: ${{ secrets.BADGES_DISPATCH_TOKEN }}
+          FINISHED: ${{ github.event.workflow_run.name }} ${{ github.event.workflow_run.conclusion }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          if [ -z "$GH_TOKEN" ]; then
+            echo "::notice::BADGES_DISPATCH_TOKEN is not set, so the profile redraws on its own schedule."
+            exit 0
+          fi
+          echo "Refreshing after: $FINISHED"
+          gh api -X POST repos/molexxxx/molexxxx/dispatches \
+            -f event_type=refresh-badges \
+            -f "client_payload[repo]=$REPOSITORY"
