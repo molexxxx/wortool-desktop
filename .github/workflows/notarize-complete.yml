@@ -132,7 +132,24 @@ jobs:
         with:
           path: public
 
+      # The highlights written for the version and kept beside its source win;
+      # the commit list is only the fallback when a version has none.
+      - name: Use the written highlights
+        id: written
+        env:
+          TAG: ${{ inputs.tag }}
+        run: |
+          file="source/apps/desktop/release-notes/${TAG#v}.txt"
+          if [ -f "$file" ]; then
+            cp "$file" RELEASE_NOTES.md
+            echo "found=true" >> "$GITHUB_OUTPUT"
+            echo "Notes are ${file}"
+          else
+            echo "No written highlights for ${TAG}; falling back to the commit list"
+          fi
+
       - name: Resolve the changelog range
+        if: steps.written.outputs.found != 'true'
         id: range
         working-directory: source
         env:
@@ -146,14 +163,14 @@ jobs:
       # The first desktop release has no earlier tag to count from, and the
       # whole history is not news to anyone, so it gets a written note.
       - name: Write the first release's notes
-        if: steps.range.outputs.range == ''
+        if: steps.written.outputs.found != 'true' && steps.range.outputs.range == ''
         run: |
           cat > RELEASE_NOTES.md <<'EOF'
           The first release of WoRTool for desktop: the War of Rights catalog, readable offline once it has been opened; the WoRSketch planner, with a plan that can sit over the game; the server editor; and your communities and operations. The macOS build is signed and notarized by Apple.
           EOF
 
       - name: Write the release notes
-        if: steps.range.outputs.range != ''
+        if: steps.written.outputs.found != 'true' && steps.range.outputs.range != ''
         uses: orhun/git-cliff-action@f50e11560dce63f7c33227798f90b924471a88b5 # v4.8.0
         with:
           config: public/.github/cliff.toml
