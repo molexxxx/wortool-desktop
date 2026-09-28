@@ -22,15 +22,15 @@
 
 <br/>
 
-<a href=".github/assets/screens/overlay.webp"><img alt="War of Rights in the field, with a WoRSketch plan pinned in a see-through window over the game" src=".github/assets/screens/overlay.webp" width="820" /></a>
+<a href=".github/assets/screens/home.webp"><img alt="Home in the desktop app: the next event with its answer buttons, your unit, the week, where you left off, your plans and your notices" src=".github/assets/screens/home.webp" width="820" /></a>
 <br/>
-<sub>Your plan over the game, live as your officers draw it.</sub>
+<sub>Home: your next event, your unit's week, your plans and your notices at a glance.</sub>
 
 <br/>
 
 <table>
   <tr>
-    <td align="center" width="33%"><a href=".github/assets/screens/overlay-display.webp"><img src=".github/assets/screens/overlay-display.webp" width="260" alt="The overlay focused over the game with its map display settings open"/></a><br/><sub><b>Any light</b><br/>Night, faded or gray, for you alone</sub></td>
+    <td align="center" width="33%"><a href=".github/assets/screens/overlay.webp"><img src=".github/assets/screens/overlay.webp" width="260" alt="War of Rights in the field, with a WoRSketch plan pinned in a see-through window over the game"/></a><br/><sub><b>Over the game</b><br/>Your plan, live, above the fight</sub></td>
     <td align="center" width="33%"><a href=".github/assets/screens/worsketch.webp"><img src=".github/assets/screens/worsketch.webp" width="260" alt="A WoRSketch plan of Bloody Lane with both sides placed at their bases"/></a><br/><sub><b>WoRSketch</b><br/>Plan with your unit, live</sub></td>
     <td align="center" width="33%"><a href=".github/assets/screens/maps.webp"><img src=".github/assets/screens/maps.webp" width="260" alt="Bloody Lane in the catalog: its facts, picture, record, notes and order of battle"/></a><br/><sub><b>The catalog</b><br/>Every map, unit and weapon, offline</sub></td>
   </tr>
