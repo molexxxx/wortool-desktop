@@ -10,7 +10,7 @@
 
 **The War of Rights catalog, planner and unit tools from [wortool.com](https://wortool.com), in a window beside the game.**
 
-<a href="https://github.com/molexxxx/wortool-desktop/releases/latest"><img src="https://raw.githubusercontent.com/molexxxx/molexxxx/main/.github/badges/wortool-desktop-release-wortool.svg?v=4b286c06" alt="release" /></a>
+<a href="https://github.com/molexxxx/wortool-desktop/releases/latest"><img src="https://raw.githubusercontent.com/molexxxx/molexxxx/main/.github/badges/wortool-desktop-release-wortool.svg?v=2a784c7b" alt="release" /></a>
 <a href="https://github.com/molexxxx/wortool-desktop/actions/workflows/release.yml"><img src="https://raw.githubusercontent.com/molexxxx/molexxxx/main/.github/badges/wortool-desktop-build-wortool.svg?v=4fc39dbe" alt="build" /></a>
 <a href="https://github.com/molexxxx/wortool-desktop/releases"><img src="https://raw.githubusercontent.com/molexxxx/molexxxx/main/.github/badges/wortool-desktop-downloads-wortool.svg?v=7cf8ad42" alt="downloads" /></a>
 <a href="LICENSE"><img src="https://raw.githubusercontent.com/molexxxx/molexxxx/main/.github/badges/wortool-desktop-license-wortool.svg?v=85d845b5" alt="license" /></a>
