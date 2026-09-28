@@ -47,7 +47,7 @@ Every build is on the [releases page](https://github.com/molexxxx/wortool-deskto
 | Debian, Ubuntu and derivatives | `wortool-<version>-Linux.deb` |
 | Fedora, openSUSE and derivatives | `wortool-<version>-Linux.rpm` |
 
-**Windows.** Run the installer. SmartScreen may say it does not recognize the app, because the installer is not signed with a code signing certificate yet; choose More info, then Run anyway. The installer asks where to install and adds Start menu and desktop shortcuts.
+**Windows.** Run the installer. Windows may say it protected your PC: choose **More info**, then **Run anyway**. [Signing and verification](#signing-and-verification) explains why it asks. The installer asks where to install and adds Start menu and desktop shortcuts.
 
 **macOS.** Open the dmg and drag WoRTool into Applications. The app is signed and notarized by Apple, so it opens without a warning.
 
@@ -105,6 +105,41 @@ The app checks this repository's releases a little after it starts and every few
 
 Each release lists what changed in the [release notes](https://github.com/molexxxx/wortool-desktop/releases). Versions stay below 1.0 while the app settles.
 
+## Signing and verification
+
+Every installer is built from source by the [release workflow](.github/workflows/release.yml) in this repository, on GitHub's own runners, and every run's log is public under [Actions](https://github.com/molexxxx/wortool-desktop/actions/workflows/release.yml). Each system checks what it runs differently:
+
+| | Windows | macOS | Linux |
+| --- | --- | --- | --- |
+| **Signature** | None. The NSIS installer carries no Authenticode certificate. | Developer ID Application certificate, with the hardened runtime on. | None. The AppImage, `.deb` and `.rpm` are not GPG-signed. |
+| **First launch** | SmartScreen asks once: More info, then Run anyway. | Notarized by Apple; Gatekeeper reads the ticket stapled to the dmg, even offline. | Nothing to confirm. |
+| **Updates** | Checked against the SHA-512 hash in the release's `latest.yml` before they install. | Installed only when signed by the same developer as the app already on your Mac. | The AppImage checks each update against the SHA-512 hash in `latest-linux.yml`. |
+
+### Windows
+
+Windows shows **Windows protected your PC** for any app it has not yet seen installed many times. Choose **More info**, then **Run anyway**. The prompt names an unknown publisher, which is what every unsigned installer shows. If your browser says the file is not commonly downloaded, choose **Keep**.
+
+Signing is optional on Windows and paid for every year: about $10 a month for Microsoft's Artifact Signing service, or $150 to $300 a year for a certificate from a certificate authority, whose private key has to live on a hardware security module. It would not remove the prompt either: SmartScreen flags a newly signed app too, until enough people have installed it. Microsoft sets out the options and their costs in [Code signing options for Windows app developers](https://learn.microsoft.com/en-us/windows/apps/package-and-deploy/code-signing-options), and how the prompt decides in [SmartScreen reputation for Windows app developers](https://learn.microsoft.com/en-us/windows/apps/package-and-deploy/smartscreen-reputation).
+
+On a PC with Smart App Control turned on, Windows blocks unsigned apps outright and offers no Run anyway.
+
+### macOS
+
+macOS only opens an app from the internet straight away when Apple can vouch for who made it. WoRTool is signed with a Developer ID Application certificate, which Apple issues to members of the [Apple Developer Program](https://developer.apple.com/programs/) ($99 a year), and built with the hardened runtime. Each release goes through Apple's notary service, which checks it for malicious code, and the ticket it issues is stapled to the dmg so Gatekeeper can confirm it offline. The updater installs only an update signed by the same developer.
+
+To check it yourself after installing:
+
+```sh
+codesign --verify --deep --strict --verbose=2 /Applications/WoRTool.app
+spctl --assess --type execute --verbose /Applications/WoRTool.app
+```
+
+The second command should end with `source=Notarized Developer ID`.
+
+### Linux
+
+Linux checks signatures on packages from your distribution's own repositories, not on an AppImage or a package you download yourself, so there is nothing to confirm when WoRTool first opens and nothing to buy.
+
 ## FAQ
 
 **Do I need a wortool.com account?**
@@ -114,7 +149,7 @@ The catalog works without one. Planning, your units and notifications need you s
 No. Sign-in happens on wortool.com. The app receives a session of its own, kept encrypted by your system's keystore; on a Linux desktop without a keyring, the session lasts until the app closes.
 
 **Why does Windows warn me about the installer?**
-The Windows build is not signed with a code signing certificate yet, so SmartScreen does not know it. Choose More info, then Run anyway. The macOS build is signed and notarized.
+The Windows installer is not signed, and SmartScreen asks about any app it has not yet seen installed many times. Choose More info, then Run anyway. [Signing and verification](#signing-and-verification) covers what signing would cost and why it would not remove the prompt. The macOS build is signed and notarized.
 
 **The plan does not show over the game.**
 A game in exclusive fullscreen draws over every other window. Switch War of Rights to windowed or borderless windowed mode.
@@ -126,7 +161,7 @@ Settings, the stored catalog and your session live in `%APPDATA%\WoRTool` on Win
 On Windows, from Settings, Apps. On macOS, drag WoRTool from Applications to the Trash. On Linux, delete the AppImage, or run `sudo apt remove wortool-desktop` or `sudo dnf remove wortool-desktop`.
 
 **Is the source code here?**
-No. The app is built from the wortool.com source, which is private. This repository holds the workflow that builds and signs the installers, and the releases the app updates from.
+No. The app is built from the wortool.com source, which is private. This repository holds the workflow that builds every installer and signs and notarizes the macOS one, and the releases the app updates from.
 
 **Something is wrong, or I would like something added.**
 Open an [issue](https://github.com/molexxxx/wortool-desktop/issues/new) with what you did, what you expected and what happened instead; your operating system and the version from Settings help. Account, unit and privacy questions go through [wortool.com/contact](https://wortool.com/contact).
