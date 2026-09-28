@@ -22,14 +22,22 @@
 
 <br/>
 
-<img alt="Alexander Farm in the catalog: its order of battle, arms on the field and campaign" src=".github/assets/screens/maps.webp" width="820" />
+<a href=".github/assets/screens/overlay.webp"><img alt="War of Rights in the field, with a WoRSketch plan pinned in a see-through window over the game" src=".github/assets/screens/overlay.webp" width="820" /></a>
+<br/>
+<sub>Your plan over the game, live as your officers draw it.</sub>
+
+<br/>
 
 <table>
   <tr>
-    <td align="center"><a href=".github/assets/screens/units.webp"><img src=".github/assets/screens/units.webp" width="190" alt="A combat unit's loadout and the maps it fights on"/><br/><sub>Units</sub></a></td>
-    <td align="center"><a href=".github/assets/screens/weapons.webp"><img src=".github/assets/screens/weapons.webp" width="190" alt="A weapon's range and who carries it"/><br/><sub>Weapons</sub></a></td>
-    <td align="center"><a href=".github/assets/screens/plans.webp"><img src=".github/assets/screens/plans.webp" width="190" alt="WoRSketch plans, with the latest to continue"/><br/><sub>Your plans</sub></a></td>
-    <td align="center"><a href=".github/assets/screens/board.webp"><img src=".github/assets/screens/board.webp" width="190" alt="A WoRSketch plan on Burnside Bridge"/><br/><sub>WoRSketch</sub></a></td>
+    <td align="center" width="33%"><a href=".github/assets/screens/overlay-display.webp"><img src=".github/assets/screens/overlay-display.webp" width="260" alt="The overlay focused over the game with its map display settings open"/></a><br/><sub><b>Any light</b><br/>Night, faded or gray, for you alone</sub></td>
+    <td align="center" width="33%"><a href=".github/assets/screens/worsketch.webp"><img src=".github/assets/screens/worsketch.webp" width="260" alt="A WoRSketch plan of Bloody Lane with both sides placed at their bases"/></a><br/><sub><b>WoRSketch</b><br/>Plan with your unit, live</sub></td>
+    <td align="center" width="33%"><a href=".github/assets/screens/maps.webp"><img src=".github/assets/screens/maps.webp" width="260" alt="Bloody Lane in the catalog: its facts, picture, record, notes and order of battle"/></a><br/><sub><b>The catalog</b><br/>Every map, unit and weapon, offline</sub></td>
+  </tr>
+  <tr>
+    <td align="center" width="33%"><a href=".github/assets/screens/units.webp"><img src=".github/assets/screens/units.webp" width="260" alt="A combat unit's loadout, record and the maps it fights on"/></a><br/><sub><b>Units</b><br/>Loadouts and where they fight</sub></td>
+    <td align="center" width="33%"><a href=".github/assets/screens/recruitment.webp"><img src=".github/assets/screens/recruitment.webp" width="260" alt="Recruitment notices from units taking players, one open beside the list"/></a><br/><sub><b>Recruitment</b><br/>Units looking for players</sub></td>
+    <td align="center" width="33%"><a href=".github/assets/screens/search.webp"><img src=".github/assets/screens/search.webp" width="260" alt="The search open over a map, listing a plan and maps that match"/></a><br/><sub><b>Keyboard first</b><br/>Any page, a keystroke away</sub></td>
   </tr>
 </table>
 
@@ -65,15 +73,15 @@ sudo dnf install ./wortool-*-Linux.rpm
 <table>
   <tr>
     <td width="64" valign="top"><img src=".github/assets/features/catalog.svg" width="48" height="48" alt="" /></td>
-    <td><b>The catalog, offline.</b> Every map, combat unit and weapon, with orders of battle, loadouts and effective ranges. The whole catalog is stored on your computer, and pages you have opened keep working without a connection.</td>
+    <td><b>The catalog, offline.</b> Every map, combat unit and weapon, with orders of battle, loadouts and effective ranges, and a conversation beside each one where you can @ players, units, maps and weapons. The whole catalog is stored on your computer, and pages you have opened keep working without a connection.</td>
   </tr>
   <tr>
     <td width="64" valign="top"><img src=".github/assets/features/planner.svg" width="48" height="48" alt="" /></td>
-    <td><b>WoRSketch.</b> Plan an attack on the game's own maps with your unit: markers, lines, ranges and slides, drawn together live and kept in folders.</td>
+    <td><b>WoRSketch.</b> Plan an attack on the game's own maps with your unit: markers, lines, ranges and slides, drawn together live in one room whether people joined from the app or a browser, and kept in folders.</td>
   </tr>
   <tr>
     <td width="64" valign="top"><img src=".github/assets/features/overlay.svg" width="48" height="48" alt="" /></td>
-    <td><b>A plan over the game.</b> Pin a plan in a see-through window on top of War of Rights, then show, hide, zoom and pan it with <kbd>Ctrl</kbd>+<kbd>Alt</kbd> shortcuts without leaving the game.</td>
+    <td><b>A plan over the game.</b> Pin a plan in a see-through window on top of War of Rights. It follows the plan live as your officers draw, and you show, hide, zoom and pan it with <kbd>Ctrl</kbd>+<kbd>Alt</kbd> shortcuts without leaving the game.</td>
   </tr>
   <tr>
     <td width="64" valign="top"><img src=".github/assets/features/server.svg" width="48" height="48" alt="" /></td>
@@ -81,7 +89,7 @@ sudo dnf install ./wortool-*-Linux.rpm
   </tr>
   <tr>
     <td width="64" valign="top"><img src=".github/assets/features/units.svg" width="48" height="48" alt="" /></td>
-    <td><b>Your units and operations.</b> Your unit's week, roster and ranks, and the operations it takes part in, as wortool.com shows them to you.</td>
+    <td><b>Your units, dispatches and recruitment.</b> Your unit's week, roster and ranks, the operations it takes part in, dispatches, and the recruitment board, as wortool.com shows them to you.</td>
   </tr>
   <tr>
     <td width="64" valign="top"><img src=".github/assets/features/notifications.svg" width="48" height="48" alt="" /></td>
