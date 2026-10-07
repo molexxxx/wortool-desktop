@@ -35,6 +35,11 @@
     <td align="center" width="33%"><a href=".github/assets/screens/maps.webp"><img src=".github/assets/screens/maps.webp" width="260" alt="Bloody Lane in the catalog: its facts, picture, record, notes and order of battle"/></a><br/><sub><b>The catalog</b><br/>Every map, unit and weapon, offline</sub></td>
   </tr>
   <tr>
+    <td align="center" width="33%"><a href=".github/assets/screens/muster.webp"><img src=".github/assets/screens/muster.webp" width="260" alt="The muster window open over a unit's page, taking an event's roll"/></a><br/><sub><b>Muster</b><br/>Take the roll over the game</sub></td>
+    <td align="center" width="33%"><a href=".github/assets/screens/manage.webp"><img src=".github/assets/screens/manage.webp" width="260" alt="A unit's roster in the Manage view, three members checked to change together"/></a><br/><sub><b>Run your unit</b><br/>Roster, ranks, schedule and more</sub></td>
+    <td align="center" width="33%"><a href=".github/assets/screens/profile.webp"><img src=".github/assets/screens/profile.webp" width="260" alt="A player's profile: their record, the month-by-month chart and the maps they played"/></a><br/><sub><b>Your record</b><br/>Every round you played</sub></td>
+  </tr>
+  <tr>
     <td align="center" width="33%"><a href=".github/assets/screens/units.webp"><img src=".github/assets/screens/units.webp" width="260" alt="A combat unit's loadout, record and the maps it fights on"/></a><br/><sub><b>Units</b><br/>Loadouts and where they fight</sub></td>
     <td align="center" width="33%"><a href=".github/assets/screens/recruitment.webp"><img src=".github/assets/screens/recruitment.webp" width="260" alt="Recruitment notices from units taking players, one open beside the list"/></a><br/><sub><b>Recruitment</b><br/>Units looking for players</sub></td>
     <td align="center" width="33%"><a href=".github/assets/screens/search.webp"><img src=".github/assets/screens/search.webp" width="260" alt="The search open over a map, listing a plan and maps that match"/></a><br/><sub><b>Keyboard first</b><br/>Any page, a keystroke away</sub></td>
