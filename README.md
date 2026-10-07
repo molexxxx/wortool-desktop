@@ -22,7 +22,7 @@
 
 <br/>
 
-<a href=".github/assets/screens/home.webp"><img alt="Home in the desktop app: the next event with its answer buttons, your unit, the week, where you left off, your plans and your notices" src=".github/assets/screens/home.webp" width="820" /></a>
+<a href=".github/assets/screens/home.webp"><img alt="Home in the desktop app: your unit's next event, your unit, the week with what still needs your answer, where you left off, your plans and your notices" src=".github/assets/screens/home.webp" width="820" /></a>
 <br/>
 <sub>Home: your next event, your unit's week, your plans and your notices at a glance.</sub>
 
@@ -89,7 +89,7 @@ sudo dnf install ./wortool-*-Linux.rpm
   </tr>
   <tr>
     <td width="64" valign="top"><img src=".github/assets/features/units.svg" width="48" height="48" alt="" /></td>
-    <td><b>Your units, dispatches and recruitment.</b> Your unit's week, roster and ranks, the operations it takes part in, dispatches, and the recruitment board, as wortool.com shows them to you.</td>
+    <td><b>Your units, dispatches and recruitment.</b> Your unit's week, roster, ranks and turnout reports, the operations it takes part in, dispatches, and the recruitment board, as wortool.com shows them to you. Officers keep the roster, ranks, schedule, applications, invitations and Discord settings from the app, and take the roll in a muster window that stays on top of the game.</td>
   </tr>
   <tr>
     <td width="64" valign="top"><img src=".github/assets/features/notifications.svg" width="48" height="48" alt="" /></td>
