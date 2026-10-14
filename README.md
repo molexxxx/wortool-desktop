@@ -22,9 +22,9 @@
 
 <br/>
 
-<a href=".github/assets/screens/home.webp"><img alt="Home in the desktop app: your unit's next event, your unit, the week with what still needs your answer, where you left off, your plans and your notices" src=".github/assets/screens/home.webp" width="820" /></a>
+<a href=".github/assets/screens/home.webp"><img alt="Home in the desktop app: the event that needs you drawn large on a battle scene, your next seven days beside it, your unit's last 30 days and who is in its voice channels, and where you left off" src=".github/assets/screens/home.webp" width="820" /></a>
 <br/>
-<sub>Home: your next event, your unit's week, your plans and your notices at a glance.</sub>
+<sub>Home: the event that needs you, your next seven days, your unit and who is in voice, at a glance.</sub>
 
 <br/>
 
