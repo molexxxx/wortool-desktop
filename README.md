@@ -42,7 +42,7 @@
   <tr>
     <td align="center" width="33%"><a href=".github/assets/screens/units.webp"><img src=".github/assets/screens/units.webp" width="260" alt="A combat unit's loadout, record and the maps it fights on"/></a><br/><sub><b>Units</b><br/>Loadouts and where they fight</sub></td>
     <td align="center" width="33%"><a href=".github/assets/screens/recruitment.webp"><img src=".github/assets/screens/recruitment.webp" width="260" alt="Recruitment notices from units taking players, one open beside the list"/></a><br/><sub><b>Recruitment</b><br/>Units looking for players</sub></td>
-    <td align="center" width="33%"><a href=".github/assets/screens/search.webp"><img src=".github/assets/screens/search.webp" width="260" alt="The search open over a map, listing a plan and maps that match"/></a><br/><sub><b>Keyboard first</b><br/>Any page, a keystroke away</sub></td>
+    <td align="center" width="33%"><a href=".github/assets/screens/search.webp"><img src=".github/assets/screens/search.webp" width="260" alt="The search open over a map before anything is typed, leading with the records opened last by their crests and pictures"/></a><br/><sub><b>Keyboard first</b><br/>Any page, a keystroke away</sub></td>
   </tr>
 </table>
 
